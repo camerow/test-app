@@ -20,6 +20,12 @@ class App extends Component {
         users: snap.val()
       })
     })
+
+    database.ref("purchases").on("value", (snap) => {
+      this.setState({
+        purchases: snap.val()
+      })
+    })
   }
   // controlled input
   handleUserChange(e) {
@@ -57,7 +63,7 @@ class App extends Component {
         }
 
         else {
-          purchasesTable.set({
+          purchasesTable.update({
             purchases: value.purchases + 1
           })
         }        
@@ -71,6 +77,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <div className="App">
         <div className="App-header">
@@ -88,6 +95,7 @@ class App extends Component {
             return (
               <div key={i}>
                 <p>{username}</p>
+                <p>Purchases: { this.state.purchases[username] ? this.state.purchases[username].purchases : "nada" }</p>
                 <button onClick={ () => this.incrementPurchases(username)}>+</button>
                 <button onClick={ () => this.decrementPurchases(username) }>-</button>
               </div>
