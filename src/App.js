@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.png';
 import './App.css';
 import firebase from "./lib/firebase";
-import shortid from "shortid"
+// import shortid from "shortid";
 
 const database = firebase.database();
 
@@ -10,21 +10,26 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      users: {}
+      users: {},
+      purchases: {}
     };
   }
 
   componentWillMount() {
     database.ref("users").on("value", (snap) => {
-      this.setState({
-        users: snap.val()
-      })
+      if (snap.val()) {
+        this.setState({
+          users: snap.val()
+        })
+      }
     })
 
     database.ref("purchases").on("value", (snap) => {
-      this.setState({
-        purchases: snap.val()
-      })
+      if (snap.val()) {
+        this.setState({
+          purchases: snap.val()
+        })
+      }
     })
   }
   // controlled input
@@ -48,8 +53,11 @@ class App extends Component {
     })
   }
 
+  removeUser(username) {
+    database.ref("users/" + username).remove();
+  }
+
   incrementPurchases(username) {
-    const purchaseId = shortid.generate();
     // Quick query
     // here i get the table reference
     let purchasesTable = database.ref('purchases/' + username)
@@ -69,13 +77,7 @@ class App extends Component {
             purchases: value.purchases + 1
           })
         }        
-      })
-
-
-    // database.ref('users/' + username).set({
-    //   purchases: purchaseId
-    // });
-    // get purchase total
+      });
   }
 
   render() {
@@ -91,12 +93,12 @@ class App extends Component {
         </p>
 
         <input value={this.state.username || ""} onChange={(e) => this.handleUserChange(e)}></input>
-        <button onClick={() => this.handleClick()}>add user</button>
+        <button style={{ textTransform: "capitalize"}} onClick={() => this.handleClick()}>add user</button>
         {
           Object.keys(this.state.users).map( (username, i) => {
             return (
               <div key={i}>
-                <p>{username}</p>
+                <p onClick={() => this.removeUser(username)}>{username}</p>
                 <p>Purchases: { this.state.purchases[username] ? this.state.purchases[username].purchases : "nada" }</p>
                 <button onClick={ () => this.incrementPurchases(username)}>+</button>
                 <button onClick={ () => this.decrementPurchases(username) }>-</button>
