@@ -50,18 +50,20 @@ class App extends Component {
 
   incrementPurchases(username) {
     const purchaseId = shortid.generate();
+    // Quick query
+    // here i get the table reference
     let purchasesTable = database.ref('purchases/' + username)
-    
+    // here i query for purchases value
     purchasesTable.once("value")
       .then( snap => {
         let value = snap.val();
-
+        // if it doesn't exist i set it'
         if (!value) {
           purchasesTable.set({
             purchases: 1
           })
         }
-
+        // if it does, i increment
         else {
           purchasesTable.update({
             purchases: value.purchases + 1
